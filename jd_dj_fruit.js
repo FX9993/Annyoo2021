@@ -97,7 +97,7 @@ waterNum = 0, waterTimes = 0, shareCode = '', hzstr = '', msgStr = '';
         tslist = await taskList();
         for (let index = 0; index < tslist.result.taskInfoList.length; index++) {
             let element = tslist.result.taskInfoList[index];
-            if (element.taskId == '23eee1c043c01bc') {
+            if (element.taskId == '23eee1c043c01bc' && !!shareCode) {
                 shareCode += '@' + element.uniqueId + ',';
                 console.log('\n好友互助码:' + shareCode);
                 hzstr = ',助力' + element.finishNum + '/' + element.totalNum + ',助力你的好友:';
@@ -119,16 +119,20 @@ waterNum = 0, waterTimes = 0, shareCode = '', hzstr = '', msgStr = '';
             notify.sendNotify('京东到家果园互助码:', shareCode)
         }
     }
+    if ((new Date().getUTCHours() + 8) % 24 < 8) {
+        $.notify('京东到家果园互助码:', '(复制后面助力码提交,无需任何前缀)', shareCode);
+        if ($.env.isNode) notify.sendNotify('京东到家果园互助码:(复制后面助力码提交,无需任何前缀)', shareCode)
+    }
     if ($.env.isNode) await notify.sendNotify('京东到家果园信息', msgStr);
-    if (!($.env.isNode && process.env.SCF_NAMESPACE)) $.write(shareCode, 'shareCodes')
-})().catch((e) => {
-    console.log('', '?失败! 原因:' + e + '!', '');
+    if (!process.env.SCF_NAMESPACE) $.write(shareCode, 'shareCodes')
+})().catch(async(e) => {
+    console.log('', '❌失败! 原因:' + e + '!', '');
     if ($.env.isNode && '' + isNotify + '' == 'true') {
-        notify.sendNotify('京东到家果园', '?失败! 原因:' + e + '!')
+        notify.sendNotify('京东到家果园', '❌失败! 原因:' + e + '!')
     }
 }).finally(() => {
-$.done();
-})
+    $.done()
+});
 async function userinfo() {
     return new Promise(async resolve => {
         try {
