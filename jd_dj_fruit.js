@@ -31,11 +31,10 @@ waterNum = 0, waterTimes = 0, shareCode = '', hzstr = '', msgStr = '';
             if (process.env.JDDJ_CKPATH) ckPath = process.env.JDDJ_CKPATH;
             delete require.cache[ckPath];
             let jdcookies = require(ckPath);
-            for (let key in jdcookies)
-                if (!!jdcookies[key]) cookies.push(jdcookies[key])
+            for (let key in jdcookies) if ( !! jdcookies[key]) cookies.push(jdcookies[key])
         } else {
             let ckstr = $.read('#jddj_cookies');
-            if (!!ckstr) {
+            if ( !! ckstr) {
                 if (ckstr.indexOf(',') < 0) cookies.push(ckstr);
                 else cookies = ckstr.split(',')
             }
@@ -82,6 +81,10 @@ waterNum = 0, waterTimes = 0, shareCode = '', hzstr = '', msgStr = '';
             }
             continue
         }
+        await $.wait(1000);
+        await treeInfo(0);
+        await $.wait(1000);
+        let tslist = await taskList();
         await waterBottle();
         await $.wait(1000);
         await runTask(tslist);
@@ -94,7 +97,7 @@ waterNum = 0, waterTimes = 0, shareCode = '', hzstr = '', msgStr = '';
         tslist = await taskList();
         for (let index = 0; index < tslist.result.taskInfoList.length; index++) {
             let element = tslist.result.taskInfoList[index];
-            if (element.taskId == '23eee1c043c01bc' && !!shareCode) {
+            if (element.taskId == '23eee1c043c01bc') {
                 shareCode += '@' + element.uniqueId + ',';
                 console.log('\n好友互助码:' + shareCode);
                 hzstr = ',助力' + element.finishNum + '/' + element.totalNum + ',助力你的好友:';
@@ -111,19 +114,21 @@ waterNum = 0, waterTimes = 0, shareCode = '', hzstr = '', msgStr = '';
         await $.wait(1000)
     }
     if ((new Date().getUTCHours() + 8) % 24 < 8) {
-        $.notify('京东到家果园互助码:', '(复制后面助力码提交,无需任何前缀)', shareCode);
-        if ($.env.isNode) notify.sendNotify('京东到家果园互助码:(复制后面助力码提交,无需任何前缀)', shareCode)
+        $.notify('京东到家果园互助码:', '', shareCode);
+        if ($.env.isNode) {
+            notify.sendNotify('京东到家果园互助码:', shareCode)
+        }
     }
     if ($.env.isNode) await notify.sendNotify('京东到家果园信息', msgStr);
-    if (!process.env.SCF_NAMESPACE) $.write(shareCode, 'shareCodes')
-})().catch(async(e) => {
-    console.log('', '❌失败! 原因:' + e + '!', '');
+    if (!($.env.isNode && process.env.SCF_NAMESPACE)) $.write(shareCode, 'shareCodes')
+})().catch((e) => {
+    console.log('', '?失败! 原因:' + e + '!', '');
     if ($.env.isNode && '' + isNotify + '' == 'true') {
-        notify.sendNotify('京东到家果园', '❌失败! 原因:' + e + '!')
+        notify.sendNotify('京东到家果园', '?失败! 原因:' + e + '!')
     }
 }).finally(() => {
-    $.done()
-});
+$.done();
+})
 async function userinfo() {
     return new Promise(async resolve => {
         try {
@@ -447,7 +452,6 @@ async function runTask2(tslist) {
         }
     })
 }
-
 async function treeInfo(step) {
     return new Promise(async resolve => {
         try {
@@ -463,7 +467,7 @@ async function treeInfo(step) {
                         waterNum = (waterTimes * 10) + data.result.userResponse.waterBalance - waterNum;
                         if (waterNum < 0) waterNum = 0;
                         if (data.result.activityInfoResponse.curStageLeftProcess == 0) {
-                            console.log('\n京东到家果园【' + nickname + '】:' + data.result.activityInfoResponse.fruitName + '已成熟,快去收取! ');
+                            console.log('\n京东到家果园【' + nickname + '】:' + data.result.activityInfoResponse.fruitName + '已成熟,快去收取!');
                             $.notify('京东到家果园', '【' + nickname + '】', '京东到家果园' + data.result.activityInfoResponse.fruitName + '已成熟,快去收取!\r\n (入口：京东APP首页-京东到家-我的-签到有惊喜-免费领水果)');
                             if ($.env.isNode && '' + isNotify + '' == 'true') {
                                 msgStr += '\r\n【' + nickname + '】\r\n京东到家果园' + data.result.activityInfoResponse.fruitName + '已成熟,快去收取!\r\n (入口：京东APP首页-京东到家-我的-签到有惊喜-免费领水果)'
