@@ -76,8 +76,8 @@
 9 0 * * * node /scripts/jd_DrawEntrance.js >> /scripts/logs/jd_DrawEntrance.log 2>&1
 # 京东试用
 16 8 * * * node /scripts/jd_try.js >> /scripts/logs/jd_try.log 2>&1
-
-
+# 东东超市兑换奖品
+59 23 * * * node /scripts/jd_blueCoin.js >> /scripts/logs/jd_blueCoin.log 2>&1
 # 点点券修复
 6 0,5,9,20 * * * node /scripts/jd_necklace.js >> /scripts/logs/jd_necklace.log 2>&1
 # 摇京豆
